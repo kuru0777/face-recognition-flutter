@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "string-width": "^6.1.0"
+  }
+}

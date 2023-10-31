@@ -2,11 +2,14 @@
 
 A new Flutter project.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
+## Proje Aşamaları 
+### 1. Adım
+**Taslak**
+### 2. Adım
+**Login İşlemeleri firebase konfigrasyonu**
+### 3. Adım 
+**Kameraya erişim ve çeşitli düzenlemeler.**
+- Kamera alanında aspect-ratio değeri düzenlenmesi gibi: [ASPECT-RATİO](https://docs.regulaforensics.com/develop/doc-reader-sdk/mobile/images/ios-camera-frame.webp)
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)

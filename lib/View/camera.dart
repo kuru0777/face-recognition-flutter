@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:loading_indicator/loading_indicator.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:lottie/lottie.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -52,13 +52,44 @@ class _MyHomePageState extends State<MyHomePage> {
       if (!mounted) {
         return;
       }
-      setState(() {});
+      setState(() {
+        // Kamera başlatıldığında yüz algılama işlemi başlatın.
+        startFaceDetection();
+      });
     }
+  }
+
+  Future<void> startFaceDetection() async {
+    // Kamera önizlemesi aldığınızda, bu önizleme görüntüsünü yüz algılama için işleyebilirsiniz.
+    await _cameraController!.startImageStream((CameraImage image) async {
+      final inputImage = InputImage.fromBytes(
+        bytes: image.planes[0].bytes,
+        metadata: InputImageMetadata(
+          size: Size(image.width.toDouble(), image.height.toDouble()),
+          rotation: InputImageRotation.rotation0deg,
+          format: InputImageFormat.yuv420,
+          bytesPerRow: image.planes[0].bytesPerRow,
+        ),
+      );
+
+      final List<Face> faces = await _faceDetector.processImage(inputImage);
+
+      // Algılanan yüzlerle ilgili işlemleri burada yapabilirsiniz.
+
+      for (Face face in faces) {
+        final boundingBox = face.boundingBox; // Yüzün sınırlayıcı kutusu
+        final headEulerAngleY = face.headEulerAngleY; // Yüzün başın eğim açısı
+        final headEulerAngleZ = face.headEulerAngleZ; // Yüzün başın eğim açısı
+        // Diğer özellikleri kullanabilirsiniz.
+      }
+    });
   }
 
   @override
   void dispose() {
+    // Sayfadan çıkarken, kamerayı ve yüz algılama işlemini temizleyin.
     _cameraController?.dispose();
+    _faceDetector.close();
     super.dispose();
   }
 
@@ -72,13 +103,17 @@ class _MyHomePageState extends State<MyHomePage> {
         if (!mounted) {
           return;
         }
-        setState(() {});
+        setState(() {
+          // Kamera başlatıldığında yüz algılama işlemi başlatın.
+          startFaceDetection();
+        });
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData screenSize = MediaQuery.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Kamera'),
@@ -87,7 +122,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 10),
             _cameraController?.value.isInitialized == true
                 ? AspectRatio(
                     aspectRatio: 9 / 16,
@@ -97,10 +131,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: Column(
+      floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
+            isExtended: true,
             onPressed: toggleCamera,
             tooltip: 'Kamera Değiştir',
             child: Icon(Icons.switch_camera),

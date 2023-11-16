@@ -1,146 +1,230 @@
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:lottie/lottie.dart';
+import 'dart:io';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+
+class CameraView extends StatefulWidget {
+  const CameraView(
+      {Key? key,
+      this.customPaint,
+      required this.onImage,
+      this.onCameraFeedReady,
+      this.onDetectorViewModeChanged,
+      this.onCameraLensDirectionChanged,
+      this.initialCameraLensDirection = CameraLensDirection.back})
+      : super(key: key);
+
+  final CustomPaint? customPaint;
+  final Function(InputImage inputImage) onImage;
+  final VoidCallback? onCameraFeedReady;
+  final VoidCallback? onDetectorViewModeChanged;
+  final Function(CameraLensDirection direction)? onCameraLensDirectionChanged;
+  final CameraLensDirection initialCameraLensDirection;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<CameraView> createState() => _CameraViewState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  CameraController? _cameraController;
-  List<CameraDescription>? _cameras;
-  int _selectedCameraIndex = 0;
+class _CameraViewState extends State<CameraView> {
+  static List<CameraDescription> _cameras = [];
+  CameraController? _controller;
+  int _cameraIndex = -1;
+  bool _changingCameraLens = false;
 
   @override
   void initState() {
     super.initState();
-    initializeCamera();
+
+    _initialize();
   }
 
-  Future<void> initializeCamera() async {
-    _cameras = await availableCameras();
-    if (_cameras == null || _cameras!.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Kamera Hatası'),
-            content: Text('Cihazınızda bir kamera bulunmuyor.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Tamam'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      final selectedCamera = _cameras![_selectedCameraIndex];
-      _cameraController = CameraController(
-        selectedCamera,
-        ResolutionPreset.high,
-      );
-      await _cameraController!.initialize();
-
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        // Kamera başlatıldığında yüz algılama işlemi başlatın.
-        startFaceDetection();
-      });
+  void _initialize() async {
+    if (_cameras.isEmpty) {
+      _cameras = await availableCameras();
     }
-  }
-
-  Future<void> startFaceDetection() async {
-    // Kamera önizlemesi aldığınızda, bu önizleme görüntüsünü yüz algılama için işleyebilirsiniz.
-    await _cameraController!.startImageStream((CameraImage image) async {
-      final inputImage = InputImage.fromBytes(
-        bytes: image.planes[0].bytes,
-        metadata: InputImageMetadata(
-          size: Size(image.width.toDouble(), image.height.toDouble()),
-          rotation: InputImageRotation.rotation0deg,
-          format: InputImageFormat.yuv420,
-          bytesPerRow: image.planes[0].bytesPerRow,
-        ),
-      );
-
-      final List<Face> faces = await _faceDetector.processImage(inputImage);
-
-      // Algılanan yüzlerle ilgili işlemleri burada yapabilirsiniz.
-
-      for (Face face in faces) {
-        final boundingBox = face.boundingBox; // Yüzün sınırlayıcı kutusu
-        final headEulerAngleY = face.headEulerAngleY; // Yüzün başın eğim açısı
-        final headEulerAngleZ = face.headEulerAngleZ; // Yüzün başın eğim açısı
-        // Diğer özellikleri kullanabilirsiniz.
+    for (var i = 0; i < _cameras.length; i++) {
+      if (_cameras[i].lensDirection == widget.initialCameraLensDirection) {
+        _cameraIndex = i;
+        break;
       }
-    });
+    }
+    if (_cameraIndex != -1) {
+      _startLiveFeed();
+    }
   }
 
   @override
   void dispose() {
-    // Sayfadan çıkarken, kamerayı ve yüz algılama işlemini temizleyin.
-    _cameraController?.dispose();
-    _faceDetector.close();
+    _stopLiveFeed();
     super.dispose();
-  }
-
-  void toggleCamera() {
-    setState(() {
-      _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
-      final selectedCamera = _cameras![_selectedCameraIndex];
-      _cameraController =
-          CameraController(selectedCamera, ResolutionPreset.high);
-      _cameraController!.initialize().then((_) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          // Kamera başlatıldığında yüz algılama işlemi başlatın.
-          startFaceDetection();
-        });
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData screenSize = MediaQuery.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Kamera'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _cameraController?.value.isInitialized == true
-                ? AspectRatio(
-                    aspectRatio: 9 / 16,
-                    child: CameraPreview(_cameraController!),
+    return Scaffold(body: _liveFeedBody());
+  }
+
+  Widget _liveFeedBody() {
+    if (_cameras.isEmpty) return Container();
+    if (_controller == null) return Container();
+    if (_controller?.value.isInitialized == false) return Container();
+    return Container(
+      color: Colors.black,
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          Center(
+            child: _changingCameraLens
+                ? Center(
+                    child: const Text('Changing camera lens'),
                   )
-                : Lottie.asset('Assets/face_loading_4.json'),
-          ],
-        ),
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            isExtended: true,
-            onPressed: toggleCamera,
-            tooltip: 'Kamera Değiştir',
-            child: Icon(Icons.switch_camera),
+                : CameraPreview(
+                    _controller!,
+                    child: widget.customPaint,
+                  ),
           ),
+          _switchLiveCameraToggle(),
+          _detectionViewModeToggle(),
         ],
+      ),
+    );
+  }
+
+  Widget _detectionViewModeToggle() => Positioned(
+        bottom: 8,
+        left: 8,
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: FloatingActionButton(
+            heroTag: Object(),
+            onPressed: widget.onDetectorViewModeChanged,
+            backgroundColor: Colors.black54,
+            child: Icon(
+              Icons.photo_library_outlined,
+              size: 25,
+            ),
+          ),
+        ),
+      );
+
+  Widget _switchLiveCameraToggle() => Positioned(
+        bottom: 8,
+        right: 8,
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: FloatingActionButton(
+            heroTag: Object(),
+            onPressed: _switchLiveCamera,
+            backgroundColor: Colors.black54,
+            child: Icon(
+              Platform.isIOS
+                  ? Icons.flip_camera_ios_outlined
+                  : Icons.flip_camera_android_outlined,
+              size: 25,
+            ),
+          ),
+        ),
+      );
+
+  Future _startLiveFeed() async {
+    final camera = _cameras[_cameraIndex];
+    _controller = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
+    );
+    _controller?.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      _controller?.startImageStream(_processCameraImage).then((value) {
+        if (widget.onCameraFeedReady != null) {
+          widget.onCameraFeedReady!();
+        }
+        if (widget.onCameraLensDirectionChanged != null) {
+          widget.onCameraLensDirectionChanged!(camera.lensDirection);
+        }
+      });
+      setState(() {});
+    });
+  }
+
+  Future _stopLiveFeed() async {
+    await _controller?.stopImageStream();
+    await _controller?.dispose();
+    _controller = null;
+  }
+
+  Future _switchLiveCamera() async {
+    setState(() => _changingCameraLens = true);
+    _cameraIndex = (_cameraIndex + 1) % _cameras.length;
+
+    await _stopLiveFeed();
+    await _startLiveFeed();
+    setState(() => _changingCameraLens = false);
+  }
+
+  void _processCameraImage(CameraImage image) {
+    final inputImage = _inputImageFromCameraImage(image);
+    if (inputImage == null) return;
+    widget.onImage(inputImage);
+  }
+
+  final _orientations = {
+    DeviceOrientation.portraitUp: 0,
+    DeviceOrientation.landscapeLeft: 90,
+    DeviceOrientation.portraitDown: 180,
+    DeviceOrientation.landscapeRight: 270,
+  };
+
+  InputImage? _inputImageFromCameraImage(CameraImage image) {
+    if (_controller == null) return null;
+
+    final camera = _cameras[_cameraIndex];
+    final sensorOrientation = camera.sensorOrientation;
+    print(
+        'lensDirection: ${camera.lensDirection}, sensorOrientation: $sensorOrientation, ${_controller?.value.deviceOrientation} ${_controller?.value.lockedCaptureOrientation} ${_controller?.value.isCaptureOrientationLocked}');
+    InputImageRotation? rotation;
+    if (Platform.isIOS) {
+      rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
+    } else if (Platform.isAndroid) {
+      var rotationCompensation =
+          _orientations[_controller!.value.deviceOrientation];
+      if (rotationCompensation == null) return null;
+      if (camera.lensDirection == CameraLensDirection.front) {
+        rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
+      } else {
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
+      }
+      rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+      print('rotationCompensation: $rotationCompensation');
+    }
+    if (rotation == null) return null;
+
+    final format = InputImageFormatValue.fromRawValue(image.format.raw);
+
+    if (format == null ||
+        (Platform.isAndroid && format != InputImageFormat.nv21) ||
+        (Platform.isIOS && format != InputImageFormat.bgra8888)) return null;
+
+    if (image.planes.length != 1) return null;
+    final plane = image.planes.first;
+
+    return InputImage.fromBytes(
+      bytes: plane.bytes,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: rotation,
+        format: format,
+        bytesPerRow: plane.bytesPerRow,
       ),
     );
   }

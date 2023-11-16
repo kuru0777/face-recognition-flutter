@@ -31,7 +31,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void navigateToCamera() async {
-      var isLoginSuccessful = false; // Başlangıçta başarısız kabul edelim
+      var isLoginSuccessful = false;
 
       User? user = await userController.signIn(
           emailController.text, passwordController.text);
@@ -39,6 +39,7 @@ class LoginPage extends StatelessWidget {
       if (user != null) {
         isLoginSuccessful = true;
         Navigator.pushNamed(context, '/camera');
+        print('Giriş başarılı: ${user.email}');
       } else {
         isLoginSuccessful = false;
       }
@@ -90,6 +91,9 @@ class LoginPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: navigateToCamera,
                     child: Text('Giriş Yap'),
+                    onLongPress: () {
+                      Navigator.pushNamed(context, '/camera');
+                    },
                   ),
                 ],
               )

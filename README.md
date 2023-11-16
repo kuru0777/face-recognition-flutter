@@ -17,3 +17,7 @@ A new Flutter project.
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+### 4. Adım 
+**Kamera önizleme ve google ml kit kullanarak yüz algılama işlemleri**
+### 5. Adım ?
+**MobileFaceNet modeli tflite_flutter paketi ve modelin tflite a dönüştürülmesi işlemleri**

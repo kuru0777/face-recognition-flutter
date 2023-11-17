@@ -65,24 +65,32 @@ class _CameraViewState extends State<CameraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Yüz Algılama')),
-        body: _liveFeedBody(),
-        bottomNavigationBar: BottomNavigationBarTheme(
-            data: BottomNavigationBarThemeData(
-              backgroundColor: Colors.amber,
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.black,
-            ),
-            child: BottomNavigationBar(items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.image),
-                label: 'Galeri',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.camera_alt),
-                label: 'Kamera',
-              ),
-            ])));
+      appBar: AppBar(title: const Text('Yüz Algılama')),
+      body: _liveFeedBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.amber,
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.white,
+        currentIndex: 1,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.image),
+            label: 'Galeri',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera_alt),
+            label: 'Kamera',
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.amber,
+        child: const Icon(Icons.flip_camera_android),
+        onPressed: _switchLiveCamera,
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterDocked,
+    );
   }
 
   Widget _liveFeedBody() {
@@ -101,34 +109,20 @@ class _CameraViewState extends State<CameraView> {
                       'Assets/face_loading_4.json',
                     ),
                   )
-                : CameraPreview(
-                    _controller!,
-                    child: widget.customPaint,
+                : AspectRatio(
+                    aspectRatio: Size(_controller!.value.previewSize!.height,
+                            _controller!.value.previewSize!.width)
+                        .aspectRatio,
+                    child: CameraPreview(
+                      _controller!,
+                      child: widget.customPaint,
+                    ),
                   ),
           ),
-          _switchLiveCameraToggle(),
         ],
       ),
     );
   }
-
-  Widget _switchLiveCameraToggle() => Positioned(
-        bottom: 8,
-        right: 8,
-        child: SizedBox(
-          height: 50.0,
-          width: 50.0,
-          child: FloatingActionButton(
-            heroTag: Object(),
-            onPressed: _switchLiveCamera,
-            backgroundColor: Colors.amber,
-            child: Icon(
-              Icons.switch_camera_outlined,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      );
 
   Future _startLiveFeed() async {
     final camera = _cameras[_cameraIndex];

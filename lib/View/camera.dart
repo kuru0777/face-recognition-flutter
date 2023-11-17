@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:lottie/lottie.dart';
 
 class CameraView extends StatefulWidget {
   const CameraView(
@@ -63,7 +64,25 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _liveFeedBody());
+    return Scaffold(
+        appBar: AppBar(title: Text('Yüz Algılama')),
+        body: _liveFeedBody(),
+        bottomNavigationBar: BottomNavigationBarTheme(
+            data: BottomNavigationBarThemeData(
+              backgroundColor: Colors.amber,
+              selectedItemColor: Colors.white,
+              unselectedItemColor: Colors.black,
+            ),
+            child: BottomNavigationBar(items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.image),
+                label: 'Galeri',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.camera_alt),
+                label: 'Kamera',
+              ),
+            ])));
   }
 
   Widget _liveFeedBody() {
@@ -71,14 +90,16 @@ class _CameraViewState extends State<CameraView> {
     if (_controller == null) return Container();
     if (_controller?.value.isInitialized == false) return Container();
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
           Center(
             child: _changingCameraLens
                 ? Center(
-                    child: const Text('Changing camera lens'),
+                    child: Lottie.asset(
+                      'Assets/face_loading_4.json',
+                    ),
                   )
                 : CameraPreview(
                     _controller!,
@@ -86,29 +107,10 @@ class _CameraViewState extends State<CameraView> {
                   ),
           ),
           _switchLiveCameraToggle(),
-          _detectionViewModeToggle(),
         ],
       ),
     );
   }
-
-  Widget _detectionViewModeToggle() => Positioned(
-        bottom: 8,
-        left: 8,
-        child: SizedBox(
-          height: 50.0,
-          width: 50.0,
-          child: FloatingActionButton(
-            heroTag: Object(),
-            onPressed: widget.onDetectorViewModeChanged,
-            backgroundColor: Colors.black54,
-            child: Icon(
-              Icons.photo_library_outlined,
-              size: 25,
-            ),
-          ),
-        ),
-      );
 
   Widget _switchLiveCameraToggle() => Positioned(
         bottom: 8,
@@ -119,12 +121,10 @@ class _CameraViewState extends State<CameraView> {
           child: FloatingActionButton(
             heroTag: Object(),
             onPressed: _switchLiveCamera,
-            backgroundColor: Colors.black54,
+            backgroundColor: Colors.amber,
             child: Icon(
-              Platform.isIOS
-                  ? Icons.flip_camera_ios_outlined
-                  : Icons.flip_camera_android_outlined,
-              size: 25,
+              Icons.switch_camera_outlined,
+              color: Colors.black,
             ),
           ),
         ),
@@ -189,8 +189,6 @@ class _CameraViewState extends State<CameraView> {
 
     final camera = _cameras[_cameraIndex];
     final sensorOrientation = camera.sensorOrientation;
-    print(
-        'lensDirection: ${camera.lensDirection}, sensorOrientation: $sensorOrientation, ${_controller?.value.deviceOrientation} ${_controller?.value.lockedCaptureOrientation} ${_controller?.value.isCaptureOrientationLocked}');
     InputImageRotation? rotation;
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
@@ -205,7 +203,6 @@ class _CameraViewState extends State<CameraView> {
             (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
-      print('rotationCompensation: $rotationCompensation');
     }
     if (rotation == null) return null;
 

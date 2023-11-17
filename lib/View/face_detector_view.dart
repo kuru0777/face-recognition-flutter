@@ -11,9 +11,7 @@ enum DetectorViewMode { liveFeed, gallery }
 class DetectorView extends StatefulWidget {
   const DetectorView({
     Key? key,
-    required this.title,
     this.customPaint,
-    this.text,
     required this.onImage,
     this.onCameraFeedReady,
     this.onDetectorViewModeChanged,
@@ -22,9 +20,7 @@ class DetectorView extends StatefulWidget {
     this.initialCameraLensDirection = CameraLensDirection.front,
   }) : super(key: key);
 
-  final String title;
   final CustomPaint? customPaint;
-  final String? text;
   final DetectorViewMode initialDetectionMode;
   final Function(InputImage inputImage) onImage;
   final Function()? onCameraFeedReady;
@@ -76,7 +72,6 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;
-  String? _text;
   var _cameraLensDirection = CameraLensDirection.front;
 
   @override
@@ -89,9 +84,7 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   @override
   Widget build(BuildContext context) {
     return DetectorView(
-      title: 'Face Detector',
       customPaint: _customPaint,
-      text: _text,
       onImage: _processImage,
       initialCameraLensDirection: _cameraLensDirection,
       onCameraLensDirectionChanged: (value) => _cameraLensDirection = value,
@@ -102,9 +95,7 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
-    setState(() {
-      _text = '';
-    });
+    setState(() {});
     final faces = await _faceDetector.processImage(inputImage);
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {

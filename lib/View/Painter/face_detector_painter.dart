@@ -59,7 +59,7 @@ class FaceDetectorPainter extends CustomPainter {
       if (canvas != null) {
         final textPainter = TextPainter(
           ellipsis: '...',
-          text: TextSpan(
+          text: const TextSpan(
             text: 'Yüz Algılandı!',
             style: TextStyle(
               backgroundColor: Colors.amber,
@@ -77,7 +77,7 @@ class FaceDetectorPainter extends CustomPainter {
         );
       } else {
         // canvas null olamaz!!!
-        //
+        // burada yüz algılanır ama tanınmazsa uyarısı yazacak
       }
     }
   }

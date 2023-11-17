@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
@@ -54,10 +52,33 @@ class FaceDetectorPainter extends CustomPainter {
       canvas.drawRect(
         Rect.fromLTRB(left, top, right, bottom),
         Paint()
-          ..color = Colors.red
+          ..color = Colors.amber
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0,
       );
+      if (canvas != null) {
+        final textPainter = TextPainter(
+          ellipsis: '...',
+          text: TextSpan(
+            text: 'Yüz Algılandı!',
+            style: TextStyle(
+              backgroundColor: Colors.amber,
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(minWidth: 0, maxWidth: size.width);
+        textPainter.paint(
+          canvas,
+          Offset(left / 2, top - 23),
+        );
+      } else {
+        // canvas null olamaz!!!
+        //
+      }
     }
   }
 

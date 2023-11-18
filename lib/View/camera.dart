@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:lottie/lottie.dart';
-
 class CameraView extends StatefulWidget {
+  
   const CameraView(
       {Key? key,
       this.customPaint,
@@ -85,8 +85,10 @@ class _CameraViewState extends State<CameraView> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.amber,
-        child: const Icon(Icons.flip_camera_android),
         onPressed: _switchLiveCamera,
+        child: const Icon(
+          Icons.flip_camera_android,
+        ),
       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,

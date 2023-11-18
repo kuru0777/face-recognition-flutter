@@ -56,30 +56,25 @@ class FaceDetectorPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0,
       );
-      if (canvas != null) {
-        final textPainter = TextPainter(
-          ellipsis: '...',
-          text: const TextSpan(
-            text: 'Yüz Algılandı!',
-            style: TextStyle(
-              backgroundColor: Colors.amber,
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+      final textPainter = TextPainter(
+        ellipsis: '...',
+        text: const TextSpan(
+          text: 'Yüz Algılandı!',
+          style: TextStyle(
+            backgroundColor: Colors.amber,
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout(minWidth: 0, maxWidth: size.width);
-        textPainter.paint(
-          canvas,
-          Offset(left / 2, top - 23),
-        );
-      } else {
-        // canvas null olamaz!!!
-        // burada yüz algılanır ama tanınmazsa uyarısı yazacak
-      }
-    }
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout(minWidth: 0, maxWidth: size.width);
+      textPainter.paint(
+        canvas,
+        Offset(left / 2, top - 23),
+      );
+        }
   }
 
   @override

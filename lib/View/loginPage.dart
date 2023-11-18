@@ -1,12 +1,7 @@
-import 'package:face_detector/Model/userModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import '../Controller/userController.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import '../Controller/userController.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -47,7 +42,7 @@ class LoginPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Giriş Yap'),
+        title: const Text('Giriş Yap'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -65,7 +60,7 @@ class LoginPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: emailController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'E-mail',
                   ),
                 ),
@@ -74,7 +69,7 @@ class LoginPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: passwordController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Şifre',
                   ),
                 ),
@@ -86,11 +81,11 @@ class LoginPage extends StatelessWidget {
                     onPressed: (() {
                       Navigator.pushNamed(context, '/register');
                     }),
-                    child: Text('Kayıt Ol'),
+                    child: const Text('Kayıt Ol'),
                   ),
                   ElevatedButton(
                     onPressed: navigateToCamera,
-                    child: Text('Giriş Yap'),
+                    child: const Text('Giriş Yap'),
                     onLongPress: () {
                       Navigator.pushNamed(context, '/camera');
                     },

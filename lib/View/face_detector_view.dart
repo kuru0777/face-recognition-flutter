@@ -3,10 +3,12 @@ import 'package:face_detector/View/Painter/face_detector_painter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-
+import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 import 'camera.dart';
 
 enum DetectorViewMode { liveFeed, gallery }
+
+var interpreter;
 
 class DetectorView extends StatefulWidget {
   const DetectorView({
@@ -111,5 +113,22 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
     if (mounted) {
       setState(() {});
     }
+  }
+}
+
+Future loadTFLiteModel() async {
+  try {
+    final gpuDelegateV2 = tfl.GpuDelegateV2(
+        options: tfl.GpuDelegateOptionsV2(
+      isPrecisionLossAllowed: true,
+    ));
+
+    var interpreterOptions = tfl.InterpreterOptions()
+      ..addDelegate(gpuDelegateV2);
+    interpreter = await tfl.Interpreter.fromAsset(
+        '/Assets/ml/mobilefacenet.tflite',
+        options: interpreterOptions);
+  } on Exception {
+    print('Failed To Load TensorFlow Model.');
   }
 }

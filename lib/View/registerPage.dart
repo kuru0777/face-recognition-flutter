@@ -1,10 +1,8 @@
 import 'package:face_detector/Model/userModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import '../Controller/userController.dart';
 import 'package:lottie/lottie.dart';
-import 'loginPage.dart';
 
 class RegisterPage extends StatelessWidget {
   bool isRegistered = false;
@@ -55,7 +53,7 @@ class RegisterPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kayıt Ol'),
+        title: const Text('Kayıt Ol'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -64,7 +62,7 @@ class RegisterPage extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
+                child: SizedBox(
                   height: 200,
                   width: 200,
                   child: Lottie.asset(
@@ -77,7 +75,7 @@ class RegisterPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: usernameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Kullanıcı Adı',
                   ),
                 ),
@@ -86,7 +84,7 @@ class RegisterPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: passwordController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Şifre',
                   ),
                 ),
@@ -95,7 +93,7 @@ class RegisterPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: emailController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'E-posta',
                   ),
                 ),
@@ -104,7 +102,7 @@ class RegisterPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: firstNameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Ad',
                   ),
                 ),
@@ -113,14 +111,14 @@ class RegisterPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
                   controller: lastNameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Soyad',
                   ),
                 ),
               ),
               ElevatedButton(
                 onPressed: navigateToLogin,
-                child: Text('Kayıt Ol'),
+                child: const Text('Kayıt Ol'),
               ),
             ],
           ),

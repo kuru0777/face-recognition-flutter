@@ -1,4 +1,3 @@
-import '../Controller/userController.dart';
 
 class UserModel {
   final String id;
@@ -18,15 +17,6 @@ class UserModel {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
-    if (data == null) {
-      return UserModel(
-          id: id,
-          email: '',
-          userName: '',
-          password: '',
-          firstName: '',
-          lastName: '');
-    }
     return UserModel(
       id: id,
       email: data['email'] ?? '',

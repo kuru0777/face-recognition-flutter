@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../Model/userModel.dart';
 
@@ -28,7 +26,7 @@ class UserController {
       );
       return user;
     } on FirebaseAuthException catch (e) {
-      var errors;
+      String errors;
       if (e.code == 'weak-password') {
         errors = 'Şifre çok zayıf.';
         print(errors);
@@ -36,12 +34,11 @@ class UserController {
         errors = 'Bu e-posta adresi zaten kullanılıyor.';
         print(errors);
       }
-      Fluttertoast.showToast(
-        msg: errors,
-      );
+      Fluttertoast.showToast(msg: 'errors');
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   Future<User?> signIn(String email, String password) async {
@@ -70,7 +67,7 @@ class UserController {
           print(errors);
         }
         Fluttertoast.showToast(
-          msg: "Giriş Başarısız: ${errors}",
+          msg: errors,
         );
       } else {
         print('Giriş başarısız: $e');

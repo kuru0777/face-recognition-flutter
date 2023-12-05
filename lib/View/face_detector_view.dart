@@ -120,7 +120,7 @@ Future loadTFLiteModel() async {
   try {
     final gpuDelegateV2 = tfl.GpuDelegateV2(
         options: tfl.GpuDelegateOptionsV2(
-      isPrecisionLossAllowed: true,
+      isPrecisionLossAllowed: false,
     ));
 
     var interpreterOptions = tfl.InterpreterOptions()

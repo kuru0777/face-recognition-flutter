@@ -53,6 +53,7 @@ class RegisterPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.amber,
         title: const Text('Kayıt Ol'),
       ),
       body: SingleChildScrollView(

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:lottie/lottie.dart';
+
 class CameraView extends StatefulWidget {
-  
   const CameraView(
       {Key? key,
       this.customPaint,
@@ -65,7 +65,10 @@ class _CameraViewState extends State<CameraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Yüz Algılama')),
+      appBar: AppBar(
+        title: const Text('Yüz Algılama'),
+        backgroundColor: Colors.amber,
+      ),
       body: _liveFeedBody(),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.amber,
